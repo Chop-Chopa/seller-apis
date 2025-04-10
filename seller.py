@@ -12,7 +12,29 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(last_id, client_id, seller_token):
-    """Получить список товаров магазина озон"""
+    """
+    Получает список товаров магазина Ozon.
+
+    Эта функция делает запрос к API Ozon и получает информацию о товарах,
+    начиная с указанного товара (по ID), и возвращает данные о товарах.
+
+    Аргументы:
+        last_id (str): ID последнего товара, с которого нужно начать загрузку.
+        client_id (str): ID клиента для аутентификации в API Ozon.
+        seller_token (str): Токен продавца для доступа к API Ozon.
+
+    Возвращает:
+        list: Список товаров магазина Ozon в формате JSON. Каждый товар содержит
+              информацию, такую как ID, название, описание и другие параметры.
+
+    Пример:
+        >>> get_product_list('12345', 'client_id_example', 'token_example')
+        [{'offer_id': '12345', 'name': 'Товар 1'}, {'offer_id': '12346', 'name': 'Товар 2'}]
+
+    Некорректное использование:
+        >>> get_product_list('', 'client_id_example', 'token_example')
+        []  # Если нет товаров с таким last_id, возвращается пустой список.
+    """
     url = "https://api-seller.ozon.ru/v2/product/list"
     headers = {
         "Client-Id": client_id,
@@ -32,7 +54,26 @@ def get_product_list(last_id, client_id, seller_token):
 
 
 def get_offer_ids(client_id, seller_token):
-    """Получить артикулы товаров магазина озон"""
+    """
+    Получает артикулы товаров магазина Ozon.
+
+    Функция делает несколько запросов к API Ozon для получения всех артикулов товаров магазина.
+
+    Аргументы:
+        client_id (str): ID клиента для аутентификации в API Ozon.
+        seller_token (str): Токен продавца для доступа к API Ozon.
+
+    Возвращает:
+        list: Список артикулов товаров магазина Ozon.
+
+    Пример:
+        >>> get_offer_ids('client_id_example', 'token_example')
+        ['offer_id_1', 'offer_id_2']
+
+    Некорректное использование:
+        >>> get_offer_ids('invalid_client', 'invalid_token')
+        []  # Если не удаётся получить данные, вернётся пустой список.
+    """
     last_id = ""
     product_list = []
     while True:
@@ -49,7 +90,28 @@ def get_offer_ids(client_id, seller_token):
 
 
 def update_price(prices: list, client_id, seller_token):
-    """Обновить цены товаров"""
+    """
+    Обновляет цены товаров на Ozon.
+
+    Функция отправляет запрос в API Ozon для обновления цен товаров по списку.
+
+    Аргументы:
+        prices (list): Список словарей с ценами товаров, где каждый словарь содержит 
+                       информацию о товаре и новой цене.
+        client_id (str): ID клиента для аутентификации в API Ozon.
+        seller_token (str): Токен продавца для доступа к API Ozon.
+
+    Возвращает:
+        dict: Ответ от API Ozon, содержащий результат обновления цен.
+
+    Пример:
+        >>> update_price([{'offer_id': '12345', 'price': '5990'}], 'client_id_example', 'token_example')
+        {'result': 'success'}
+
+    Некорректное использование:
+        >>> update_price([], 'client_id_example', 'token_example')
+        {'error': 'No prices to update'}
+    """
     url = "https://api-seller.ozon.ru/v1/product/import/prices"
     headers = {
         "Client-Id": client_id,
@@ -62,7 +124,28 @@ def update_price(prices: list, client_id, seller_token):
 
 
 def update_stocks(stocks: list, client_id, seller_token):
-    """Обновить остатки"""
+    """
+    Обновляет остатки товаров на Ozon.
+
+    Функция отправляет запрос в API Ozon для обновления остатков товаров по списку.
+
+    Аргументы:
+        stocks (list): Список словарей с остатками товаров, где каждый словарь содержит
+                       информацию о товаре и новом остатке.
+        client_id (str): ID клиента для аутентификации в API Ozon.
+        seller_token (str): Токен продавца для доступа к API Ozon.
+
+    Возвращает:
+        dict: Ответ от API Ozon, содержащий результат обновления остатков.
+
+    Пример:
+        >>> update_stocks([{'offer_id': '12345', 'stock': 100}], 'client_id_example', 'token_example')
+        {'result': 'success'}
+
+    Некорректное использование:
+        >>> update_stocks([], 'client_id_example', 'token_example')
+        {'error': 'No stocks to update'}
+    """
     url = "https://api-seller.ozon.ru/v1/product/import/stocks"
     headers = {
         "Client-Id": client_id,
@@ -75,7 +158,24 @@ def update_stocks(stocks: list, client_id, seller_token):
 
 
 def download_stock():
-    """Скачать файл ostatki с сайта casio"""
+    """
+    Скачивает файл с остатками товаров с сайта Casio.
+
+    Эта функция загружает файл с остатками, распаковывает его и извлекает данные
+    из Excel файла для дальнейшего использования.
+
+    Возвращает:
+        list: Список остатков товаров в формате словарей, где каждый словарь содержит
+              информацию о товаре и его остатке.
+
+    Пример:
+        >>> download_stock()
+        [{'Код': '12345', 'Количество': '5'}, {'Код': '12346', 'Количество': '>10'}]
+
+    Некорректное использование:
+        >>> download_stock()
+        []  # Если файл повреждён или данные не загружаются, возвращается пустой список.
+    """
     # Скачать остатки с сайта
     casio_url = "https://timeworld.ru/upload/files/ostatki.zip"
     session = requests.Session()
@@ -96,7 +196,27 @@ def download_stock():
 
 
 def create_stocks(watch_remnants, offer_ids):
-    # Уберем то, что не загружено в seller
+    """
+    Создаёт список остатков для товаров на Ozon.
+
+    Эта функция фильтрует остатки, чтобы оставить только те товары, которые
+    уже загружены на Ozon, и добавляет недостающие товары с нулевым остатком.
+
+    Аргументы:
+        watch_remnants (list): Список словарей с остатками товаров.
+        offer_ids (list): Список артикулов товаров на Ozon.
+
+    Возвращает:
+        list: Список словарей с остатками товаров для загрузки на Ozon.
+
+    Пример:
+        >>> create_stocks([{'Код': '12345', 'Количество': '5'}], ['12345'])
+        [{'offer_id': '12345', 'stock': 5}]
+
+    Некорректное использование:
+        >>> create_stocks([], [])
+        []
+    """
     stocks = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -116,6 +236,27 @@ def create_stocks(watch_remnants, offer_ids):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """
+    Создаёт список цен для товаров на Ozon.
+
+    Эта функция формирует список цен для товаров, которые есть на Ozon, 
+    используя данные из списка остатков.
+
+    Аргументы:
+        watch_remnants (list): Список словарей с остатками товаров.
+        offer_ids (list): Список артикулов товаров на Ozon.
+
+    Возвращает:
+        list: Список словарей с ценами товаров для загрузки на Ozon.
+
+    Пример:
+        >>> create_prices([{'Код': '12345', 'Цена': "5'990.00 руб."}], ['12345'])
+        [{'offer_id': '12345', 'price': '5990'}]
+
+    Некорректное использование:
+        >>> create_prices([], [])
+        []
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -131,12 +272,52 @@ def create_prices(watch_remnants, offer_ids):
 
 
 def price_conversion(price: str) -> str:
-    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990"""
+    """
+    Преобразует цену из строки формата "5'990.00 руб." в числовой формат без разделителей.
+
+    Это полезно, когда нужно удалить все символы, кроме цифр, из строки цены, 
+    чтобы преобразовать её в стандартный числовой вид, например, для дальнейших расчётов.
+
+    Аргументы:
+        price (str): Строка, содержащая цену в формате с разделителями (например, "5'990.00 руб.").
+
+    Возвращает:
+        str: Цена в виде строки без разделителей (например, "5990").
+
+    Пример:
+        >>> price_conversion("5'990.00 руб.")
+        '5990'
+
+    Некорректное использование:
+        >>> price_conversion("1000 руб.")
+        '1000'
+    """
     return re.sub("[^0-9]", "", price.split(".")[0])
 
 
 def divide(lst: list, n: int):
-    """Разделить список lst на части по n элементов"""
+    """
+    Разделяет список на части.
+
+    Эта функция разделяет исходный список на несколько частей, каждая из которых
+    имеет не более n элементов.
+
+    Аргументы:
+        lst (list): Список, который нужно разделить.
+        n (int): Максимальное количество элементов в каждой части.
+
+    Возвращает:
+        generator: Генератор, который возвращает части исходного списка,
+                   каждая из которых является списком длиной не более n.
+
+    Пример:
+        >>> list(divide([1, 2, 3, 4, 5], 2))
+        [[1, 2], [3, 4], [5]]
+
+    Некорректное использование:
+        >>> list(divide([], 2))
+        []  # Пустой список остаётся пустым, не вызывает ошибок.
+    """
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
 
