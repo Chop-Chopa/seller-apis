@@ -11,6 +11,23 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """
+    Получает список товаров с Яндекс.Маркет.
+
+    Параметры:
+        page (str): Токен страницы для получения следующей порции данных.
+        campaign_id (str): ID кампании на Яндекс.Маркет.
+        access_token (str): Токен доступа к API Яндекс.Маркет.
+
+    Возвращает:
+        dict: Словарь с результатами запроса, который содержит товары и пагинацию.
+
+    Пример:
+        get_product_list('page_token', '12345', 'access_token')
+
+    Исключения:
+        - requests.exceptions.RequestException: Ошибки при отправке запроса.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +47,23 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+     """
+    Обновляет остатки товаров на Яндекс.Маркет.
+
+    Параметры:
+        stocks (list): Список словарей с остатками товаров.
+        campaign_id (str): ID кампании на Яндекс.Маркет.
+        access_token (str): Токен доступа к API Яндекс.Маркет.
+
+    Возвращает:
+        dict: Ответ от API Яндекс.Маркет с результатами обновления.
+
+    Пример:
+        update_stocks([{'sku': '12345', 'warehouseId': '1', 'items': [...]}, '12345', 'access_token']
+
+    Исключения:
+        - requests.exceptions.RequestException: Ошибки при отправке запроса.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +80,23 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """
+    Обновляет цены товаров на Яндекс.Маркет.
+
+    Параметры:
+        prices (list): Список словарей с ценами товаров.
+        campaign_id (str): ID кампании на Яндекс.Маркет.
+        access_token (str): Токен доступа к API Яндекс.Маркет.
+
+    Возвращает:
+        dict: Ответ от API Яндекс.Маркет с результатами обновления.
+
+    Пример:
+        update_price([{'id': '12345', 'price': {'value': 1000}}], '12345', 'access_token')
+
+    Исключения:
+        - requests.exceptions.RequestException: Ошибки при отправке запроса.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +113,22 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """
+    Получает артикулы товаров на Яндекс.Маркет по ID кампании.
+
+    Параметры:
+        campaign_id (str): ID кампании на Яндекс.Маркет.
+        market_token (str): Токен доступа к API Яндекс.Маркет.
+
+    Возвращает:
+        list: Список артикулов товаров (shopSku).
+
+    Пример:
+        get_offer_ids('12345', 'access_token')
+
+    Исключения:
+        - requests.exceptions.RequestException: Ошибки при отправке запроса.
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +144,23 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """
+    Создаёт список остатков для обновления на Яндекс.Маркет.
+
+    Параметры:
+        watch_remnants (list): Список остатков с данными о товарах.
+        offer_ids (list): Список артикулов товаров.
+        warehouse_id (str): ID склада на Яндекс.Маркет.
+
+    Возвращает:
+        list: Список словарей с остатками товаров для отправки на Яндекс.Маркет.
+
+    Пример:
+        create_stocks([{'Код': '12345', 'Количество': '5'}], ['12345'], '1')
+
+    Исключения:
+        Нет.
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -123,6 +206,22 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """
+    Создаёт список цен для обновления на Яндекс.Маркет.
+
+    Параметры:
+        watch_remnants (list): Список остатков с данными о товарах.
+        offer_ids (list): Список артикулов товаров.
+
+    Возвращает:
+        list: Список словарей с ценами товаров.
+
+    Пример:
+        create_prices([{'Код': '12345', 'Цена': '1000'}], ['12345'])
+
+    Исключения:
+        Нет.
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
